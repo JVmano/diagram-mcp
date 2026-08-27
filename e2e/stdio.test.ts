@@ -39,7 +39,12 @@ afterAll(async () => {
 describe('the server over stdio', () => {
   it('advertises the three tools with usable schemas', async () => {
     const { tools } = await client.listTools()
-    expect(tools.map((tool) => tool.name).sort()).toEqual(['diagram_syntax', 'render_diagram', 'validate_diagram'])
+    expect(tools.map((tool) => tool.name).sort()).toEqual([
+      'diagram_syntax',
+      'preview_diagram',
+      'render_diagram',
+      'validate_diagram',
+    ])
 
     const render = tools.find((tool) => tool.name === 'render_diagram')!
     expect(render.description).toContain('PNG')

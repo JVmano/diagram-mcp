@@ -3,7 +3,7 @@ import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { afterAll, describe, expect, it } from 'vitest'
 import { readConfig, type Config } from './config'
-import { handleDiagramSyntax, handleRenderDiagram, handleValidateDiagram } from './tools'
+import { handleDiagramSyntax, handlePreviewDiagram, handleRenderDiagram, handleValidateDiagram } from './tools'
 
 const root = mkdtempSync(join(tmpdir(), 'diagram-mcp-tools-'))
 
@@ -68,6 +68,23 @@ describe('validate_diagram', () => {
     const result = handleValidateDiagram({ code: 'node a "A" colour=red' }, config())
     expect(result.isError).toBeUndefined()
     expect(result.content[0]!.text).toContain('valid, with warnings')
+  })
+})
+
+describe('preview_diagram', () => {
+  it('returns the drawing in a fenced block with a summary', () => {
+    const result = handlePreviewDiagram({ code: VALID }, config())
+    expect(result.isError).toBeUndefined()
+    const body = result.content[0]!.text
+    expect(body.startsWith('```')).toBe(true)
+    expect(body).toContain('Start')
+    expect(body).toContain('2 shapes, 1 connections.')
+  })
+
+  it('refuses broken code with the line numbers', () => {
+    const result = handlePreviewDiagram({ code: 'node a "A"\na -> ghost' }, config())
+    expect(result.isError).toBe(true)
+    expect(result.content[0]!.text).toContain('error on line 2')
   })
 })
 

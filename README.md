@@ -7,6 +7,7 @@ MCP server that renders diagram-as-code text to PNG files on your disk. No brows
 ## Tools
 
 - `render_diagram`: code to a PNG, returns the file path
+- `preview_diagram`: draws the diagram as text art, straight into the conversation, writes no file
 - `validate_diagram`: parse and report errors with line numbers, writes nothing
 - `diagram_syntax`: the language reference
 

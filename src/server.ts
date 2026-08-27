@@ -8,7 +8,7 @@
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js'
 import { z } from 'zod'
 import { readConfig, type Config } from './config'
-import { handleDiagramSyntax, handleRenderDiagram, handleValidateDiagram } from './tools'
+import { handleDiagramSyntax, handlePreviewDiagram, handleRenderDiagram, handleValidateDiagram } from './tools'
 
 export const SERVER_NAME = 'diagram-mcp'
 export const SERVER_VERSION = '1.0.0'
@@ -26,7 +26,7 @@ export function createServer(config: Config = readConfig()): McpServer {
       instructions: [
         'Renders diagram-as-code text into PNG files on the local disk.',
         'Write the code, call render_diagram, and use the returned path to attach the image wherever it is needed.',
-        'Call diagram_syntax first if you have not written this language before, and validate_diagram if you want to check code without writing a file.',
+        'Call diagram_syntax first if you have not written this language before, preview_diagram to show the diagram as text in the conversation, and validate_diagram to check code without writing a file.',
         `Renders are written to ${config.outputDir} unless outputPath says otherwise.`,
       ].join(' '),
     },
@@ -90,6 +90,32 @@ export function createServer(config: Config = readConfig()): McpServer {
       },
     },
     async (args) => handleValidateDiagram(args, config),
+  )
+
+  server.registerTool(
+    'preview_diagram',
+    {
+      title: 'Preview diagram as text',
+      description:
+        'Draw the diagram as text art so it can be shown directly in the conversation. Writes no file. Use render_diagram when a PNG is needed.',
+      inputSchema: {
+        code: codeSchema,
+        maxCols: z
+          .number()
+          .min(24)
+          .max(400)
+          .optional()
+          .describe('Width of the drawing in characters. Default 110.'),
+      },
+      annotations: {
+        title: 'Preview diagram as text',
+        readOnlyHint: true,
+        destructiveHint: false,
+        idempotentHint: true,
+        openWorldHint: false,
+      },
+    },
+    async (args) => handlePreviewDiagram(args, config),
   )
 
   server.registerTool(

@@ -8,6 +8,9 @@
 
 import type { Config } from './config'
 import type { Problem } from './core/model/types'
+import { renderDiagramAscii } from './ascii'
+import { layoutDiagram } from './core/model/layout'
+import { parseDiagram } from './core/model/parser'
 import { RenderError, renderToPng, validateCode, type RenderRequest } from './render'
 import { SYNTAX_GUIDE } from './syntax'
 
@@ -78,6 +81,20 @@ export function handleValidateDiagram(args: { code: string }, config: Config): T
     return text([`The diagram code is valid, with warnings.`, formatProblems(report.problems), summary].join('\n'))
   }
   return text(`The diagram code is valid. ${summary}`)
+}
+
+export function handlePreviewDiagram(args: { code: string; maxCols?: number }, config: Config): ToolResult {
+  const report = validateCode(args.code, config)
+  if (!report.ok) {
+    return text(['The diagram code has errors, so there is nothing to draw.', formatProblems(report.problems)].join('\n'), true)
+  }
+  if (report.nodeCount === 0) {
+    return text('The diagram has no shapes, so there is nothing to draw.', true)
+  }
+  const art = renderDiagramAscii(layoutDiagram(parseDiagram(args.code).diagram), { maxCols: args.maxCols })
+  const summary = `${report.nodeCount} shapes, ${report.edgeCount} connections.`
+  const warnings = report.problems.length > 0 ? `\n${formatProblems(report.problems)}` : ''
+  return text(`\`\`\`\n${art}\n\`\`\`\n${summary}${warnings}`)
 }
 
 export function handleDiagramSyntax(): ToolResult {
