@@ -4,6 +4,7 @@
   "version": "1.0.0",
   "type": "module",
   "description": "MCP server that turns diagram-as-code text into rendered PNG files, with no browser and no network.",
+  "license": "MIT",
   "bin": {
     "diagram-mcp": "dist/index.js"
   },

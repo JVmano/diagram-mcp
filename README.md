@@ -76,3 +76,7 @@ npm run verify    # typecheck, test, build, e2e
 ```
 
 The parser, layout and SVG generation in `src/core` are shared with a local diagram editor project; `npm run check:sync` diffs them against it when it is checked out next door.
+
+## License
+
+MIT
